@@ -1,0 +1,24 @@
+{{- define "common.gateway.tpl" -}}
+{{- $username := (split "_" .Chart.Name)._0 }}
+{{- $appName := (split "_" .Chart.Name)._1 }}
+{{- $appValues := index .Values $username $appName }}
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+{{ include "common.metadataCustom" . }}
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  - hosts:
+    - {{ .Values.baseDomain }}
+    port:
+      name: https
+      number: 443
+      protocol: https
+    tls:
+      mode: SIMPLE
+      credentialName: ingress-cert # This should match the Certifcate secretName
+{{- end }}
+{{- define "common.gateway" -}}
+{{- template "common.util.merge" (append . "common.gateway.tpl") -}}
+{{- end -}}

@@ -1,0 +1,23 @@
+{{- define "common.virtualservice.tpl" -}}
+{{- $username := (split "_" .Chart.Name)._0 }}
+{{- $appName := (split "_" .Chart.Name)._1 }}
+{{- $appValues := index .Values $username $appName }}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+{{ include "common.metadataCustom" . }}
+spec:
+  gateways:
+  - istio-system/{{ .Chart.Name }}
+  hosts:
+  - {{ .Values.baseDomain }}
+  http:
+  - match:
+    - uri:
+        prefix: /{{ $username }}/{{ $appName }}
+    route:
+    - destination:
+        host: {{ .Chart.Name }}.{{ .Values.env }}.svc.cluster.local
+{{- end }}
+{{- define "common.virtualservice" -}}
+{{- template "common.util.merge" (append . "common.virtualservice.tpl") -}}
+{{- end -}}

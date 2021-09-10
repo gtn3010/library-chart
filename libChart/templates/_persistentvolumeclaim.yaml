@@ -1,0 +1,22 @@
+{{- define "common.persistentvolumeclaim.tpl" -}}
+{{- $username := (split "_" .Chart.Name)._0 }}
+{{- $appName := (split "_" .Chart.Name)._1 }}
+{{- $appValues := index .Values $username $appName }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+{{ template "common.metadataCustom" . }}
+spec:
+  accessModes:
+    - {{ $appValues.volume.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ $appValues.volume.size | quote }}
+{{- if .Values.storageClass }}
+  storageClassName: "{{ .Values.storageClass }}"
+{{- else }}
+  storageClassName: ""
+{{- end }}
+{{- end }}
+{{- define "common.persistentvolumeclaim" -}}
+{{- template "common.util.merge" (append . "common.persistentvolumeclaim.tpl") -}}
+{{- end -}}

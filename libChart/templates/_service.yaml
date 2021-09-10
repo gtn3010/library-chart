@@ -1,0 +1,22 @@
+{{- define "common.service.tpl" -}}
+{{- $username := (split "_" .Chart.Name)._0 }}
+{{- $appName := (split "_" .Chart.Name)._1 }}
+{{- $appValues := index .Values $username $appName }}
+{{- if not $appValues.canary }}
+apiVersion: v1
+kind: Service
+{{ include "common.metadataCustom" . }}
+spec:
+  type: ClusterIP
+  sessionAffinity: None
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+{{ include "common.labelCustom" . | indent 4 }}
+{{- end }}
+{{- end -}}
+{{- define "common.service" -}}
+{{- template "common.util.merge" (append . "common.service.tpl") -}}
+{{- end -}}

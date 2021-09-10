@@ -1,0 +1,61 @@
+{{- define "common.deployment.tpl" -}}
+{{- $username := (split "_" .Chart.Name)._0 }}
+{{- $appName := (split "_" .Chart.Name)._1 }}
+{{- $appValues := index .Values $username $appName }}
+apiVersion: apps/v1
+kind: Deployment
+{{ include "common.metadataCustom" . }}
+spec:
+{{- if not $appValues.hpa }}
+  replicas: {{ $appValues.podReplicas | default "1" }}
+{{- end }}
+  selector:
+    matchLabels:
+{{ include "common.labelCustom" . | indent 6 }}
+  strategy:
+{{- if not $appValues.rollingStrategy }}
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+{{- else }}
+{{ toYaml $appValues.rollingStrategy | trim | indent 4 }}
+{{- end }}
+  template:
+    metadata:
+      labels:
+{{ include "common.labelCustom" . | indent 8 }}
+      {{- if $appValues.canary }}
+        version: {{ $appValues.version }}
+      {{- end }}
+    spec:
+{{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+{{- else }}
+{{ toYaml $appValues.nodeSelector | indent 8 }}
+{{- end }}
+      enableServiceLinks: false
+      automountServiceAccountToken: false
+
+      {{- if $appValues.runtimeClass }}
+      runtimeClassName: {{- $appValues.runtimeClass }}
+      {{- end }}
+
+      {{- if $appValues.priorityClass }}
+      priorityClassName: {{- $appValues.priorityClass }}
+      {{- end }}
+
+      {{- if $appValues.volume }}
+      volumes:
+      - name: {{ .Chart.Name }}
+        persistentVolumeClaim:
+          claimName: {{ .Chart.Name }}
+      {{- end }}
+      containers:
+      -
+{{- include "app.container" . }}
+{{- end -}}
+{{- define "common.deployment" -}}
+{{- template "common.util.merge" (append . "common.deployment.tpl") -}}
+{{- end -}}

@@ -1,0 +1,16 @@
+{{- define "common.destinationrules.tpl" -}}
+{{- $username := (split "_" .Chart.Name)._0 }}
+{{- $appName := (split "_" .Chart.Name)._1 }}
+{{- $appValues := index .Values $username $appName }}
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+{{ include "common.metadataCustom" . }}
+spec:
+  host: {{ .Chart.Name }}.{{ .Values.env }}.svc.cluster.local
+  trafficPolicy:
+    loadBalancer:
+      simple: LEAST_CONN
+{{- end }}
+{{- define "common.destinationrules" -}}
+{{- template "common.util.merge" (append . "common.destinationrules.tpl") -}}
+{{- end -}}

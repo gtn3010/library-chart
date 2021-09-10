@@ -1,0 +1,25 @@
+{{- define "common.hpa.tpl" -}}
+{{- $username := (split "_" .Chart.Name)._0 }}
+{{- $appName := (split "_" .Chart.Name)._1 }}
+{{- $appValues := index .Values $username $appName }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+{{ include "common.metadataCustom" . }}
+spec:
+  maxReplicas: {{ $appValues.hpa.maxReplicas }}
+  minReplicas: {{ $appValues.hpa.minReplicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Chart.Name }}
+  metrics:
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 50
+{{- end }}
+{{- define "common.hpa" -}}
+{{- template "common.util.merge" (append . "common.hpa.tpl") -}}
+{{- end -}}

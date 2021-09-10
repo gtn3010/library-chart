@@ -1,0 +1,69 @@
+{{- define "common.container.tpl" -}}
+{{- $username := (split "_" $.Chart.Name)._0 }}
+{{- $appName := (split "_" $.Chart.Name)._1 }}
+{{- $appValues := index $.Values $username $appName }}
+name: {{ .Chart.Name | replace "-" "_" }}
+image: "{{ .Values.imageRepository }}/{{ $username }}/{{ $appName }}:{{ $appValues.version }}"
+imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{- if $appValues.customCommand }}
+command: {{ $appValues.customCommand }}
+{{- end }}
+{{- if $appValues.env }}
+env:
+{{- range $appValues.env }}
+- name: {{ .name }}
+  value: {{ if and (contains "{{ ." .value) (contains " }}" .value) }}
+           {{- tpl .value $ | quote }}
+         {{- else }}
+           {{- .value | quote }}
+         {{- end }}
+{{- end }}
+{{- end }}
+{{- if $appValues.readyCheckPath }}
+readinessProbe:
+  httpGet:
+    path: {{ $appValues.readyCheckPath }}
+    port: {{ $.Values.readyPort }}
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  failureThreshold: 5
+  timeoutSeconds: 5
+{{- end }}
+{{- if $appValues.healthCheckPath }}
+livenessProbe:
+  httpGet:
+    path: {{ $appValues.healthCheckPath }}
+    port: {{ $.Values.healthPort }}
+  initialDelaySeconds: 30
+  periodSeconds: 30
+  failureThreshold: 5
+  timeoutSeconds: 5
+{{- end }}
+resources:
+{{- if not $appValues.resourcesLimit }}
+  limits:
+    memory: 256Mi
+    cpu: 1
+{{- else }}
+{{ toYaml $appValues.resourcesLimit | indent 2 }}
+{{- end }}
+securityContext:
+{{- if not $appValues.securityContext }}
+  privileged: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ALL
+{{- else }}
+{{ toYaml $appValues.securityContext | indent 2 }}
+{{- end }}
+{{- if $appValues.volume }}
+volumeMounts:
+- name: {{ $username }}-{{ $appName }}
+  mountPath: /bonus-storage
+{{- end }}
+{{- end -}}
+{{- define "common.container" -}}
+{{- /* clear new line so indentation works correctly */ -}}
+{{- println "" -}}
+{{- include "common.util.merge" (append . "common.container.tpl") | indent 8 -}}
+{{- end -}}
