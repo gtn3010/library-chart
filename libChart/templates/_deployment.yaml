@@ -24,10 +24,10 @@ spec:
   template:
     metadata:
       labels:
-{{ include "common.labelCustom" . | toYaml | indent 8 }}
-      {{- if $appValues.canary }}
+{{ include "common.labelCustom" . | indent 8 }}
+{{- if $appValues.canary }}
         version: {{ $appValues.version }}
-      {{- end }}
+{{- end }}
     spec:
 {{- if .Values.nodeSelector }}
       nodeSelector:
@@ -37,18 +37,18 @@ spec:
 {{- end }}
       enableServiceLinks: false
       automountServiceAccountToken: false
-      {{- if $appValues.runtimeClass }}
+{{- if $appValues.runtimeClass }}
       runtimeClassName: {{ $appValues.runtimeClass }}
-      {{- end }}
-      {{- if $appValues.priorityClass }}
+{{- end }}
+{{- if $appValues.priorityClass }}
       priorityClassName: {{ $appValues.priorityClass }}
-      {{- end }}
-      {{- if $appValues.volume }}
+{{- end }}
+{{- if $appValues.volume }}
       volumes:
       - name: {{ .Chart.Name }}
         persistentVolumeClaim:
           claimName: {{ .Chart.Name }}
-      {{- end }}
+{{- end }}
       containers:
       -
 {{- include "app.container" . }}

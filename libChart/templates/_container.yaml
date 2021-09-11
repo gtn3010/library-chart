@@ -2,8 +2,8 @@
 {{- $username := (split "_" $.Chart.Name)._0 }}
 {{- $appName := (split "_" $.Chart.Name)._1 }}
 {{- $appValues := index $.Values $username $appName }}
-name: {{ .Chart.Name | replace "-" "_" }}
-image: "{{ .Values.imageRepository }}/{{ $username }}/{{ $appName }}:{{ $appValues.version }}"
+{{ include "common.name" $ }}
+image: "{{ .Values.image.repository }}/{{ $username }}/{{ $appName | lower }}:{{ $appValues.version }}"
 imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{- if $appValues.customCommand }}
 command: {{ $appValues.customCommand }}
@@ -19,21 +19,21 @@ env:
          {{- end }}
 {{- end }}
 {{- end }}
-{{- if $appValues.readyCheckPath }}
+{{- if $appValues.readyCheck }}
 readinessProbe:
   httpGet:
-    path: {{ $appValues.readyCheckPath }}
-    port: {{ $.Values.readyPort }}
+    path: {{ $appValues.readyCheck.path }}
+    port: {{ $appValues.readyCheck.port }}
   initialDelaySeconds: 30
   periodSeconds: 30
   failureThreshold: 5
   timeoutSeconds: 5
 {{- end }}
-{{- if $appValues.healthCheckPath }}
+{{- if $appValues.healthCheck }}
 livenessProbe:
   httpGet:
-    path: {{ $appValues.healthCheckPath }}
-    port: {{ $.Values.healthPort }}
+    path: {{ $appValues.healthCheck.path }}
+    port: {{ $appValues.healthCheck.port }}
   initialDelaySeconds: 30
   periodSeconds: 30
   failureThreshold: 5
@@ -45,16 +45,17 @@ resources:
     memory: 256Mi
     cpu: 1
 {{- else }}
-{{ toYaml $appValues.resourcesLimit | indent 2 }}
+{{ toYaml $appValues.resourcesLimit | indent 4 }}
 {{- end }}
 securityContext:
 {{- if not $appValues.securityContext }}
   privileged: false
   allowPrivilegeEscalation: false
   capabilities:
-    drop: ALL
+    drop: 
+    - ALL
 {{- else }}
-{{ toYaml $appValues.securityContext | indent 2 }}
+{{ toYaml $appValues.securityContext | indent 4 }}
 {{- end }}
 {{- if $appValues.volume }}
 volumeMounts:

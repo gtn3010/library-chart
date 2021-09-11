@@ -1,16 +1,14 @@
+{{- define "common.name" -}}
+name: {{ .Chart.Name | replace "_" "-" | lower }}
+{{- end -}}
+
 {{- define "common.metadataCustom" -}}
 metadata:
-  name: {{ .Chart.Name | replace "-" "_" }}
+  {{ include "common.name" $ }}
   namespace: {{ .Values.env }}
 {{- end -}}
 
 {{- define "common.labelCustom" }}
-app: {{ .Chart.Name }}
+app: {{ .Chart.Name | replace "_" "-" | lower }}
 env: {{ .Values.env }}
-{{- end }}
-
-{{- define "common.generalVariable" }}
-{{- $username := (split "_" .Chart.Name)._0 }}
-{{- $appName := (split "_" .Chart.Name)._1 }}
-{{- $appValues := index .Values $username $appName }}
 {{- end }}
