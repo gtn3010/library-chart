@@ -24,7 +24,7 @@ spec:
     gateways:
     - {{ .Chart.Name }}.istio-system.svc.cluster.local
     hosts:
-    - {{ .Values.baseDomain }}
+    - {{ .Values.baseDomain.name }}
     trafficPolicy:
       loadBalancer:
         simple: LEAST_CONN

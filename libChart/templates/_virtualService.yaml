@@ -9,7 +9,7 @@ spec:
   gateways:
   - istio-system/{{ .Chart.Name }}
   hosts:
-  - {{ .Values.baseDomain }}
+  - {{ .Values.baseDomain.name }}
   http:
   - match:
     - uri:

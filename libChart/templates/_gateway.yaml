@@ -10,14 +10,14 @@ spec:
     istio: ingressgateway
   servers:
   - hosts:
-    - {{ .Values.baseDomain }}
+    - {{ .Values.baseDomain.name }}
     port:
       name: https
       number: 443
       protocol: https
     tls:
       mode: SIMPLE
-      credentialName: ingress-cert # This should match the Certifcate secretName
+      credentialName: {{ .Values.baseDomain.secretCert }} # This should match the Certifcate secretName
 {{- end }}
 {{- define "common.gateway" -}}
 {{- template "common.util.merge" (append . "common.gateway.tpl") -}}
