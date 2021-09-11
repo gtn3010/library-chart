@@ -24,7 +24,7 @@ spec:
   template:
     metadata:
       labels:
-{{ include "common.labelCustom" . | indent 8 }}
+{{ include "common.labelCustom" . | toYaml | indent 8 }}
       {{- if $appValues.canary }}
         version: {{ $appValues.version }}
       {{- end }}
@@ -37,15 +37,12 @@ spec:
 {{- end }}
       enableServiceLinks: false
       automountServiceAccountToken: false
-
       {{- if $appValues.runtimeClass }}
-      runtimeClassName: {{- $appValues.runtimeClass }}
+      runtimeClassName: {{ $appValues.runtimeClass }}
       {{- end }}
-
       {{- if $appValues.priorityClass }}
-      priorityClassName: {{- $appValues.priorityClass }}
+      priorityClassName: {{ $appValues.priorityClass }}
       {{- end }}
-
       {{- if $appValues.volume }}
       volumes:
       - name: {{ .Chart.Name }}
