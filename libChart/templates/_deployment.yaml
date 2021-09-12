@@ -45,9 +45,9 @@ spec:
 {{- end }}
 {{- if $appValues.volume }}
       volumes:
-      - name: {{ .Chart.Name }}
+      - name:  {{ include "common.name" . }}
         persistentVolumeClaim:
-          claimName: {{ .Chart.Name }}
+          claimName: {{ include "common.name" . }}
 {{- end }}
       containers:
       -
