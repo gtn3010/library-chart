@@ -4,7 +4,7 @@
 {{- $appValues := index .Values $username $appName }}
 apiVersion: v1
 kind: PersistentVolumeClaim
-{{ template "common.metadataCustom" . }}
+{{ include "common.metadataCustom" . }}
 spec:
   accessModes:
     - {{ $appValues.volume.accessMode | quote }}

@@ -2,7 +2,7 @@
 {{- $username := (split "_" $.Chart.Name)._0 }}
 {{- $appName := (split "_" $.Chart.Name)._1 }}
 {{- $appValues := index $.Values $username $appName }}
-{{ include "common.name" $ }}
+name: {{ include "common.name" $ }}
 image: "{{ .Values.image.repository }}/{{ $username }}/{{ $appName | lower }}:{{ $appValues.version }}"
 imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{- if $appValues.customCommand }}

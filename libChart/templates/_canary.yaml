@@ -9,20 +9,20 @@ spec:
   targetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: {{ .Chart.Name }}
+    name: {{ include "common.name" $ }}
   progressDeadlineSeconds: 60
 {{- if $appValues.hpa }}
   autoscalerRef:
     apiVersion: autoscaling/v1
     kind: HorizontalPodAutoscaler
-    name: {{ .Chart.Name }}
+    name: {{ include "common.name" $ }}
 {{- end }}
   service:
     port: 80
     portName: http
     targetPort: 80
     gateways:
-    - {{ .Chart.Name }}.istio-system.svc.cluster.local
+    - {{ include "common.name" $ }}.istio-system.svc.cluster.local
     hosts:
     - {{ .Values.baseDomain.name }}
     trafficPolicy:

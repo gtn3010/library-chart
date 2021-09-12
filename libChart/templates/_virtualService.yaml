@@ -7,7 +7,7 @@ kind: VirtualService
 {{ include "common.metadataCustom" . }}
 spec:
   gateways:
-  - istio-system/{{ .Chart.Name }}
+  - istio-system/{{ include "common.name" $ }}
   hosts:
   - {{ .Values.baseDomain.name }}
   http:
@@ -16,7 +16,7 @@ spec:
         prefix: /{{ $username }}/{{ $appName }}
     route:
     - destination:
-        host: {{ .Chart.Name }}.{{ .Values.env }}.svc.cluster.local
+        host: {{ include "common.name" $ }}.{{ .Values.env }}.svc.cluster.local
 {{- end }}
 {{- define "common.virtualservice" -}}
 {{- template "common.util.merge" (append . "common.virtualservice.tpl") -}}

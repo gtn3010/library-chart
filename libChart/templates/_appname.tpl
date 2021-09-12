@@ -1,10 +1,10 @@
 {{- define "common.name" -}}
-name: {{ .Chart.Name | replace "_" "-" | lower }}
+{{ .Chart.Name | replace "_" "-" | lower }}
 {{- end -}}
 
 {{- define "common.metadataCustom" -}}
 metadata:
-  {{ include "common.name" $ }}
+  name: {{ include "common.name" $ }}
   namespace: {{ .Values.env }}
 {{- end -}}
 

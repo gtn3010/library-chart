@@ -1,26 +1,27 @@
 {{- define "common.ingress.tpl" -}}
+{{- $username := (split "_" .Chart.Name)._0 }}
+{{- $appName := (split "_" .Chart.Name)._1 }}
+{{- $appValues := index .Values $username $appName }}
 apiVersion: extensions/v1beta1
 kind: Ingress
-{{ template "common.metadata" . }}
-  {{- if .Values.ingress.annotations }}
+{{ include "common.metadataCustom" . }}
+{{- if $appValues.ingress.annotations }}
   annotations:
-    {{ include "common.annote" .Values.ingress.annotations | indent 4 }}
-  {{- end }}
+{{ $appValues.ingress.annotations | toYaml | indent 4 }}
+{{- end }}
 spec:
   rules:
-  {{- range $host := .Values.ingress.hosts }}
-  - host: {{ $host }}
+  - host: {{ .Values.baseDomain.name }}
     http:
       paths:
       - path: /
         backend:
-          serviceName: {{ template "common.fullname" $ }}
+          serviceName: {{ include "common.name" $ }}
           servicePort: 80
-  {{- end }}
-  {{- if .Values.ingress.tls }}
+{{- if $appValues.ingress.tls }}
   tls:
-{{ toYaml .Values.ingress.tls | indent 4 }}
-  {{- end -}}
+{{ toYaml $appValues.ingress.tls | indent 4 }}
+{{- end -}}
 {{- end -}}
 {{- define "common.ingress" -}}
 {{- template "common.util.merge" (append . "common.ingress.tpl") -}}

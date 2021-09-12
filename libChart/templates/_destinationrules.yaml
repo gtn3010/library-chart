@@ -6,7 +6,7 @@ apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 {{ include "common.metadataCustom" . }}
 spec:
-  host: {{ .Chart.Name }}.{{ .Values.env }}.svc.cluster.local
+  host: {{ include "common.name" $ }}.{{ .Values.env }}.svc.cluster.local
   trafficPolicy:
     loadBalancer:
       simple: LEAST_CONN
