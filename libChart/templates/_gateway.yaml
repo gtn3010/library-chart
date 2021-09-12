@@ -7,7 +7,7 @@ kind: Gateway
 {{ include "common.metadataCustom" . }}
 spec:
   selector:
-    istio: ingressgateway
+    app: ingressgateway
   servers:
   - hosts:
     - {{ .Values.baseDomain.name }}
